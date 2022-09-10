@@ -1,7 +1,8 @@
-from datetime import timedelta
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from os import name, system
+import subprocess
 import time
-from rich import progress
 
 from rich.console import Console
 from rich.progress import track
@@ -108,22 +109,29 @@ class Pomodoro:
         short_break_minutes: int,
         long_break_minutes: int,
     ) -> None:
-        self.pomodoros = pomodoros
+        self.pomodoro_sessions = pomodoros
         self.session_rounds = session_rounds
         self.session_minutes = session_minutes
         self.short_break_minutes = short_break_minutes
         self.long_break_minutes = long_break_minutes
-        self.rounds_done = 0
+        self.completed_rounds = 0
+        self.completed_sessions = 0
+
+    def show_alert(
+        self, message: str
+    ) -> None:  # TODO: Modify to work on both windows and unix
+        subprocess.Popen(["notify-send", message])
 
     def start_session(self) -> None:
         for _ in track(
             range(self.session_minutes * 60),
-            description=f"[bold]Session {self.rounds_done + 1} Tick Tock ...",
+            description=f"[bold]Round {self.completed_rounds + 1} Tick Tock ...",
         ):
             time.sleep(1)
-        self.rounds_done += 1
-        # TODO: popup an alert message
-        console.print(f"[bold green]Session {self.rounds_done} Completed.")
+
+        self.completed_rounds += 1
+        self.show_alert("Round Done, Break Time Coming Up.")
+        console.print(f"[bold green]Round {self.completed_rounds} Completed.\n")
 
     def start_short_break(self) -> None:
         for _ in track(
@@ -131,8 +139,9 @@ class Pomodoro:
             description=f"[bold]Short Break, Take Some Rest",
         ):
             time.sleep(1)
-        # TODO: popup an alert message
-        console.print(f"[bold green]Short Break Over")
+
+        self.show_alert("Short Break Over, Get Back to Work.")
+        console.print(f"[bold green]Short Break Over\n")
 
     def start_long_break(self) -> None:
         for _ in track(
@@ -140,17 +149,42 @@ class Pomodoro:
             description=f"[bold]Long Break, Enjoy",
         ):
             time.sleep(1)
-        # TODO: popup an alert message
-        console.print(f"[bold green]Long Break Over")
 
-    def display_done_message(self) -> None:
-        console.print("[bold green]COMPLETED ALL SESSIONS")
+        self.show_alert("Long Break Completed.")
+        console.print(f"[bold green]Long Break Over\n")
+
+    def display_rounds_complete_message(self) -> None:
+        console.print("[bold blue]ALL ROUNDS HAVE BEEN COMPLETED FOR THIS SESSION\n")
+
+    def display_session_complete_message(self) -> None:
+        console.print("[bold green]ALL SESSIONS HAVE BEEN COMPLETED\n")
+
+    def reset_completed_rounds(self) -> None:
+        self.completed_rounds = 0
 
     def start(self) -> None:
-        while self.rounds_done < self.session_rounds:
-            self.start_session()
-            self.start_short_break()
+        for pomodoro_session_count in range(self.pomodoro_sessions):
+            clear_screen()
+            console.rule(f"[bold]Pomodoro Session {pomodoro_session_count + 1}")
+
+            while self.completed_rounds < self.session_rounds:
+                self.start_session()
+                if self.completed_rounds <= self.session_rounds - 1:
+                    self.start_short_break()
+
+            self.reset_completed_rounds()
+            self.display_rounds_complete_message()
             self.start_long_break()
+
+        console.rule("[bold green]ALL POMODORO SESSIONS COMPLETED")
+        self.show_alert("All pomodoro sessions completed successfully.")
+
+        console.print("[bold red]Press any to quit ...")
+        input()
+        typer.Exit()
+
+    def __str__(self) -> str:
+        return f"Pomodoro Timer {self.session_minutes}"
 
 
 def main():
