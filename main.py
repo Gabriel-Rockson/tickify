@@ -4,6 +4,7 @@ from os import name, system
 import subprocess
 import time
 
+from playsound import playsound
 from rich.console import Console
 from rich.progress import track
 from rich.table import Table
@@ -12,13 +13,11 @@ import typer
 # Instantiate console
 console = Console()
 
-
-def clear_screen() -> None:
-    """
-    Clear the terminal screen.
-    """
-    system("clc" if name == "nt" else "clear")
-
+sound_files: dict[str, str] = {
+    "work": "./sounds/work-sound.mp3",
+    "short-break": "./sounds/short-break-sound.mp3",
+    "long-break": "./sounds/long-break-sound.mp3",
+}
 
 session_time_options: list[dict[str, str]] = [
     {"time": "15:00", "english": "15 minutes"},
@@ -47,6 +46,13 @@ session_long_break_options: list[dict[str, str]] = [
     {"time": "20:00", "english": "20 minutes"},
     {"time": "25:00", "english": "25 minutes"},
 ]
+
+
+def clear_screen() -> None:
+    """
+    Clear the terminal screen.
+    """
+    system("clc" if name == "nt" else "clear")
 
 
 def display_time_options(options: list[dict[str, str]], title: str) -> None:
@@ -118,9 +124,12 @@ class Pomodoro:
         self.completed_sessions = 0
 
     def show_alert(
-        self, message: str
+        self, message: str, urgency: str = "normal"
     ) -> None:  # TODO: Modify to work on both windows and unix
-        subprocess.Popen(["notify-send", message])
+        """
+        urgency: low, normal or critical
+        """
+        subprocess.Popen(["notify-send", "-t", "3000", "-u", f"{urgency}", message])
 
     def start_session(self) -> None:
         for _ in track(
@@ -130,7 +139,7 @@ class Pomodoro:
             time.sleep(1)
 
         self.completed_rounds += 1
-        self.show_alert("Round Done, Break Time Coming Up.")
+        self.show_alert("Round Done, Break Time Coming Up.", urgency="low")
         console.print(f"[bold green]Round {self.completed_rounds} Completed.\n")
 
     def start_short_break(self) -> None:
@@ -140,7 +149,7 @@ class Pomodoro:
         ):
             time.sleep(1)
 
-        self.show_alert("Short Break Over, Get Back to Work.")
+        self.show_alert("Short Break Over!! Get Back to Work.", urgency="critical")
         console.print(f"[bold green]Short Break Over\n")
 
     def start_long_break(self) -> None:
@@ -151,7 +160,7 @@ class Pomodoro:
             time.sleep(1)
 
         self.show_alert("Long Break Completed.")
-        console.print(f"[bold green]Long Break Over\n")
+        console.print(f"[bold green]Long Break Over.\n")
 
     def display_rounds_complete_message(self) -> None:
         console.print("[bold blue]ALL ROUNDS HAVE BEEN COMPLETED FOR THIS SESSION\n")
@@ -162,18 +171,36 @@ class Pomodoro:
     def reset_completed_rounds(self) -> None:
         self.completed_rounds = 0
 
+    def play_sound(self, sound_file: str) -> None:
+        playsound(sound_file)
+
     def start(self) -> None:
         for pomodoro_session_count in range(self.pomodoro_sessions):
             clear_screen()
             console.rule(f"[bold]Pomodoro Session {pomodoro_session_count + 1}")
 
             while self.completed_rounds < self.session_rounds:
+                if self.completed_rounds == 0:
+                    self.show_alert(
+                        "Work about to start, Stay Focused...", urgency="critical"
+                    )
+                    self.play_sound(sound_files["work"])
+
+                if pomodoro_session_count > 0:
+                    self.play_sound(sound_files["work"])
+
                 self.start_session()
+
                 if self.completed_rounds <= self.session_rounds - 1:
+                    self.play_sound(sound_files["short-break"])
                     self.start_short_break()
+
+                    self.play_sound(sound_files["work"])
 
             self.reset_completed_rounds()
             self.display_rounds_complete_message()
+
+            self.play_sound(sound_files["long-break"])
             self.start_long_break()
 
         console.rule("[bold green]ALL POMODORO SESSIONS COMPLETED")
