@@ -14,7 +14,7 @@ def get_db():
     """
     Get a session connection to the database
     """
-    db = SessionLocal
+    db = SessionLocal()
     try:
         yield db
     finally:

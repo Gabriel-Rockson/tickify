@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.progress import track
 import typer
 
+from db.config import get_db
 from pomodoro.utils import clear_screen
 
 console = Console()
