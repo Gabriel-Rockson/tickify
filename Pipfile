@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 typer = {extras = ["all"], version = "*"}
+playsound = "*"
+pygobject = "*"
 
 [dev-packages]
 
