@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Integer
+from sqlalchemy import Boolean, Column, DateTime, Integer
 from sqlalchemy.sql import func
 
 from .config import Base
@@ -13,7 +13,7 @@ class Pomodoro(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     started = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    completed = Column(DateTime(timezone=True), nullable=True)
+    ended = Column(DateTime(timezone=True), nullable=True)
     number_of_sessions = Column(Integer, nullable=False)
     minutes_per_session = Column(Integer, nullable=False)
     minutes_per_short_break = Column(Integer, nullable=False)
@@ -21,6 +21,7 @@ class Pomodoro(Base):
     rounds_per_session = Column(Integer, nullable=False)
     completed_rounds = Column(Integer, nullable=False, default=0)
     completed_sessions = Column(Integer, nullable=False, default=0)
+    done = Column(Boolean, nullable=False, default=False)
 
     def __init__(
         self,
