@@ -19,8 +19,8 @@ class Pomodoro(Base):
     minutes_per_short_break = Column(Integer, nullable=False)
     minutes_per_long_break = Column(Integer, nullable=False)
     rounds_per_session = Column(Integer, nullable=False)
-    completed_rounds = Column(Integer, nullable=False, default=0)
-    completed_sessions = Column(Integer, nullable=False, default=0)
+    total_completed_rounds = Column(Integer, nullable=False, default=0)
+    total_completed_sessions = Column(Integer, nullable=False, default=0)
     done = Column(Boolean, nullable=False, default=False)
 
     def __init__(

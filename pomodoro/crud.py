@@ -1,3 +1,5 @@
+from sqlalchemy.sql import func
+
 from db.config import SessionLocal
 from db.models import Pomodoro
 
@@ -23,3 +25,41 @@ def add_new_record(
         session.refresh(pomodoro)
 
     return pomodoro
+
+
+def update_record_rounds(id: int):
+    """
+    Given the id of a record, increase its rounds count.
+    """
+
+    with SessionLocal() as session:
+        query = session.query(Pomodoro).filter(Pomodoro.id == id)
+        pomodoro = query.first()
+
+        query.update({"total_completed_rounds": pomodoro.total_completed_rounds + 1})  # type: ignore
+        session.commit()
+
+
+def update_record_total_sessions(id: int):
+    """
+    Given the id of a record, increase its total sessions count.
+    """
+
+    with SessionLocal() as session:
+        query = session.query(Pomodoro).filter(Pomodoro.id == id)
+        pomodoro = query.first()
+
+        query.update({"total_completed_sessions": pomodoro.total_completed_sessions + 1})  # type: ignore
+        session.commit()
+
+
+def update_done_status(id: int):
+    """
+    Given the id of a record, mark the pomodoro as done.
+    """
+
+    with SessionLocal() as session:
+        query = session.query(Pomodoro).filter(Pomodoro.id == id)
+
+        query.update({"done": True, "ended": func.now()})
+        session.commit()

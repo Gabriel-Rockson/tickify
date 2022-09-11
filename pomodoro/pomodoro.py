@@ -49,18 +49,19 @@ class Pomodoro:
 
     def start_session(self) -> None:
         for _ in track(
-            range(self.session_minutes * 60),
+            range(10),
             description=f"[bold]Round {self.completed_rounds + 1} Tick Tock ...",
         ):
             time.sleep(1)
 
         self.completed_rounds += 1
+
         self.show_alert("Round Done, Break Time Coming Up.", urgency="low")
         console.print(f"[bold green]Round {self.completed_rounds} Completed.\n")
 
     def start_short_break(self) -> None:
         for _ in track(
-            range(self.short_break_minutes * 60),
+            range(3),
             description=f"[bold]Short Break, Take Some Rest",
         ):
             time.sleep(1)
@@ -70,7 +71,7 @@ class Pomodoro:
 
     def start_long_break(self) -> None:
         for _ in track(
-            range(self.long_break_minutes * 60),
+            range(5),
             description=f"[bold]Long Break, Enjoy",
         ):
             time.sleep(1)
@@ -89,6 +90,12 @@ class Pomodoro:
 
     def play_sound(self, sound_file: str) -> None:
         playsound(sound_file)
+
+    def get_completed_rounds(self) -> int:
+        return self.completed_rounds
+
+    def get_completed_sessions(self) -> int:
+        return self.completed_sessions
 
     def start(self) -> None:
         # Add the data to the database
@@ -116,17 +123,31 @@ class Pomodoro:
 
                 self.start_session()
 
+                # Update the databe, and change the completed rounds
+                crud.update_record_rounds(id=record.id)  # type: ignore
+
+                # Sound the short break bell only n - 1 times
                 if self.completed_rounds <= self.session_rounds - 1:
                     self.play_sound(sound_files["short-break"])
                     self.start_short_break()
 
                     self.play_sound(sound_files["work"])
 
+            self.completed_sessions += 1
+
+            # After all round, update the total sessions count
+            crud.update_record_total_sessions(id=record.id)  # type: ignore
+
             self.reset_completed_rounds()
             self.display_rounds_complete_message()
 
-            self.play_sound(sound_files["long-break"])
-            self.start_long_break()
+            # Sound the long break bell only n - 1 times
+            if self.completed_sessions <= self.pomodoro_sessions - 1:
+                self.play_sound(sound_files["long-break"])
+                self.start_long_break()
+
+        # After all sessions, update done and ended
+        crud.update_done_status(id=record.id)  # type: ignore
 
         console.rule("[bold green]ALL POMODORO SESSIONS COMPLETED")
         self.show_alert("All pomodoro sessions completed successfully.")
