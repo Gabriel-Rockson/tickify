@@ -7,6 +7,7 @@ name = "pypi"
 typer = {extras = ["all"], version = "*"}
 playsound = "*"
 pygobject = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 
