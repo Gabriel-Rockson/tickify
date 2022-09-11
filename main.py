@@ -7,6 +7,11 @@ import typer
 from pomodoro.pomodoro import Pomodoro
 from pomodoro.utils import clear_screen
 
+from db.config import engine
+from db.models import Base
+
+Base.metadata.create_all(bind=engine)
+
 # Instantiate console
 console = Console()
 
