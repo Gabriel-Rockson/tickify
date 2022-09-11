@@ -47,9 +47,12 @@ class Pomodoro:
         """
         subprocess.Popen(["notify-send", "-t", "3000", "-u", f"{urgency}", message])
 
+    def get_seconds(self, time_in_minutes: int) -> int:
+        return time_in_minutes * 60
+
     def start_session(self) -> None:
         for _ in track(
-            range(10),
+            range(self.get_seconds(self.session_minutes)),
             description=f"[bold]Round {self.completed_rounds + 1} Tick Tock ...",
         ):
             time.sleep(1)
@@ -61,7 +64,7 @@ class Pomodoro:
 
     def start_short_break(self) -> None:
         for _ in track(
-            range(3),
+            range(self.get_seconds(self.short_break_minutes)),
             description=f"[bold]Short Break, Take Some Rest",
         ):
             time.sleep(1)
@@ -71,7 +74,7 @@ class Pomodoro:
 
     def start_long_break(self) -> None:
         for _ in track(
-            range(5),
+            range(self.get_seconds(self.long_break_minutes)),
             description=f"[bold]Long Break, Enjoy",
         ):
             time.sleep(1)
