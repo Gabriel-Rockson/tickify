@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.progress import track
 import typer
 
-from db.config import get_db
+from pomodoro import crud
 from pomodoro.utils import clear_screen
 
 console = Console()
@@ -91,6 +91,15 @@ class Pomodoro:
         playsound(sound_file)
 
     def start(self) -> None:
+        # Add the data to the database
+        record = crud.add_new_record(
+            number_of_sessions=self.pomodoro_sessions,
+            minutes_per_session=self.session_minutes,
+            minutes_per_short_break=self.short_break_minutes,
+            minutes_per_long_break=self.long_break_minutes,
+            rounds_per_session=self.session_rounds,
+        )
+
         for pomodoro_session_count in range(self.pomodoro_sessions):
             clear_screen()
             console.rule(f"[bold]Pomodoro Session {pomodoro_session_count + 1}")

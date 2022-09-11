@@ -1,5 +1,4 @@
-from sqlalchemy.orm import Session
-from db.config import get_db, SessionLocal
+from db.config import SessionLocal
 from db.models import Pomodoro
 
 
@@ -17,7 +16,10 @@ def add_new_record(
         minutes_per_long_break=minutes_per_long_break,
         rounds_per_session=rounds_per_session,
     )
+
     with SessionLocal() as session:
         session.add(pomodoro)
         session.commit()
-        print("Data has been added")
+        session.refresh(pomodoro)
+
+    return pomodoro
