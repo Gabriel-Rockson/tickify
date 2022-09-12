@@ -92,7 +92,33 @@ def get_long_break_minutes() -> int:
     return long_break_minutes
 
 
-def main():
+def display_program_options():
+    table = Table(title="Options", title_style="bold green")
+
+    table.add_column("Option Number", style="bold blue")
+    table.add_column("Option", style="magenta bold")
+    table.add_column("Description", style="bold italic")
+
+    options: list[dict[str, str]] = [
+        {
+            "number": "1",
+            "option": "Show Statistics",
+            "description": "View the statistics of previous pomodoro sessions",
+        },
+        {
+            "number": "2",
+            "option": "Run Pomodoro",
+            "description": "Run a new pomodoro session",
+        },
+    ]
+
+    for option in options:
+        table.add_row(option["number"], option["option"], option["description"])
+
+    console.print(table)
+
+
+def start_new_pomodoro_instance():
     clear_screen()
 
     # Session time options
@@ -125,6 +151,17 @@ def main():
 
     clear_screen()
     pomodoro.start()
+
+
+def main():
+    clear_screen()
+
+    # Display program options
+    display_program_options()
+    option = eval(console.input("[bold yellow]Enter your choice, eg, 1: "))
+
+    if option == 2:
+        start_new_pomodoro_instance()
 
 
 if __name__ == "__main__":
