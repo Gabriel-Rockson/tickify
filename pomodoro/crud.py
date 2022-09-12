@@ -1,3 +1,4 @@
+from datetime import date
 from sqlalchemy.sql import func
 
 from db.config import SessionLocal
@@ -63,3 +64,29 @@ def update_done_status(id: int):
 
         query.update({"done": True, "ended": func.now()})
         session.commit()
+
+
+def get_all_records():
+    """
+    Fetch all statistics from the database.
+    """
+
+    with SessionLocal() as session:
+        all_records = session.query(Pomodoro).all()
+
+    return all_records
+
+
+def get_todays_records():
+    """
+    Fetch all records today from the database.
+    """
+
+    with SessionLocal() as session:
+        records = (
+            session.query(Pomodoro)
+            .filter(func.date(Pomodoro.started) == date.today())
+            .all()
+        )
+
+    return records

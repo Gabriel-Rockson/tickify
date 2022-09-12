@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from rich.console import Console
 from rich.table import Table
 import typer
 
-from pomodoro.pomodoro import Pomodoro
-from pomodoro.utils import clear_screen
-
 from db.config import engine
 from db.models import Base
+from pomodoro import crud
+from pomodoro.pomodoro import Pomodoro
+from pomodoro.utils import clear_screen
 
 Base.metadata.create_all(bind=engine)
 
@@ -102,11 +103,16 @@ def display_program_options():
     options: list[dict[str, str]] = [
         {
             "number": "1",
-            "option": "Show Statistics",
-            "description": "View the statistics of previous pomodoro sessions",
+            "option": "Show Today's Statistics",
+            "description": "View the statistics of all pomodoro sessions today",
         },
         {
             "number": "2",
+            "option": "All Statistics",
+            "description": "View all previous pomodoro sessions statistics",
+        },
+        {
+            "number": "3",
             "option": "Run Pomodoro",
             "description": "Run a new pomodoro session",
         },
@@ -153,6 +159,86 @@ def start_new_pomodoro_instance():
     pomodoro.start()
 
 
+def show_all_statistics():
+    all_records = crud.get_all_records()
+
+    table = Table(title="All Records", title_style="bold green")
+
+    table.add_column("Started", style="bold")
+    table.add_column("Ended", style="bold")
+    table.add_column("Sessions", style="bold blue")
+    table.add_column("Rounds Per Session", style="blue")
+    table.add_column("Minutes per Round")
+    table.add_column("Completed Sessions")
+    table.add_column("Completed Rounds")
+    table.add_column("Completed")
+
+    for record in all_records:
+        table.add_row(
+            str(record.started),
+            str(record.ended),
+            str(record.number_of_sessions),
+            str(record.rounds_per_session),
+            str(record.minutes_per_session),
+            str(record.total_completed_sessions),
+            str(record.total_completed_rounds),
+            str(record.done),
+        )
+
+    clear_screen()
+    console.rule("[bold]Statistics")
+    console.print(table)
+
+
+def show_today_statistics():
+    records = crud.get_todays_records()
+
+    total_minutes_worked = 0
+
+    table = Table(
+        title=f"Pomodoros for Today: {datetime.today().date().strftime('%A %d %B %Y')}",
+        title_style="bold green",
+        title_justify="left",
+    )
+
+    table.add_column("Time Started", style="bold")
+    table.add_column("Time Ended", style="bold")
+    table.add_column("Sessions", style="bold blue")
+    table.add_column("Rounds Per Session", style="bold blue")
+    table.add_column("Minutes per Round", style="bold")
+    table.add_column("Completed Sessions", style="bold")
+    table.add_column("Completed Rounds", style="bold")
+    table.add_column("Completed", style="bold")
+    table.add_column("Time Spent Working", style="bold green")
+
+    for record in records:
+        minutes_worked = record.total_completed_rounds * record.minutes_per_session
+        total_minutes_worked += minutes_worked
+
+        table.add_row(
+            str(record.started.time()),
+            str(record.ended.time() if record.ended else "-"),
+            str(record.number_of_sessions),
+            str(record.rounds_per_session),
+            str(record.minutes_per_session),
+            str(record.total_completed_sessions),
+            str(record.total_completed_rounds),
+            str(record.done),
+            f"{minutes_worked} minutes",
+        )
+
+    table.caption = f"Total Minutes Worked: {total_minutes_worked}"
+    table.caption_style = "yellow"
+    table.caption_justify = "right"
+
+    clear_screen()
+    console.rule(
+        f"[bold red]Statistics for: {datetime.today().date().strftime('%A %d %B %Y')}"
+    )  # TODO: make the date human readable
+    console.print(table)
+    print()
+
+
 def main():
     clear_screen()
 
@@ -160,7 +246,11 @@ def main():
     display_program_options()
     option = eval(console.input("[bold yellow]Enter your choice, eg, 1: "))
 
-    if option == 2:
+    if option == 1:
+        show_today_statistics()
+    elif option == 2:
+        show_all_statistics()
+    elif option == 3:
         start_new_pomodoro_instance()
 
 
