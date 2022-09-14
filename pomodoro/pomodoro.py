@@ -1,9 +1,12 @@
 import subprocess
 import time
 
+import click
+
 from playsound import playsound
+from pynput import keyboard
 from rich.console import Console
-from rich.progress import track
+from rich.progress import Progress, track
 import typer
 
 from pomodoro import crud
@@ -38,6 +41,10 @@ class Pomodoro:
         self.long_break_minutes = long_break_minutes
         self.completed_rounds = 0
         self.completed_sessions = 0
+        self.elasped_round_seconds = 0
+        self.elasped_short_break_seconds = 0
+        self.elasped_long_break_seconds = 0
+        self.run_pomodoro = True
 
     def show_alert(
         self, message: str, urgency: str = "normal"
@@ -50,12 +57,30 @@ class Pomodoro:
     def get_seconds(self, time_in_minutes: int) -> int:
         return time_in_minutes * 60
 
+    def on_press(self, key):
+        """
+        Method to listen for key presses while the application is running
+        """
+        try:
+            if key.char == "p":
+                self.run_pomodoro = not self.run_pomodoro
+        except AttributeError:
+            print(f"Special key {key} pressed")
+
+    def on_release(self, key):
+        pass
+
     def start_session(self) -> None:
-        for _ in track(
-            range(self.get_seconds(self.session_minutes)),
-            description=f"[bold]Round {self.completed_rounds + 1} Tick Tock ...",
-        ):
-            time.sleep(1)
+        with Progress() as progress:
+            task1 = progress.add_task(
+                f"[bold yellow]Round {self.completed_rounds + 1} ...",
+                total=self.get_seconds(self.session_minutes),
+            )
+
+            while not progress.finished:
+                if self.run_pomodoro:
+                    progress.update(task1, advance=1)
+                    time.sleep(1)
 
         self.completed_rounds += 1
 
@@ -88,6 +113,13 @@ class Pomodoro:
     def display_session_complete_message(self) -> None:
         console.print("[bold green]ALL SESSIONS HAVE BEEN COMPLETED\n")
 
+    def display_round_help_keys(self) -> None:
+        console.print(
+            "[bold]Help Keys[/bold] \n[bold red]p:[/bold red] "
+            "[bold]pause / resume round[/bold]\n[bold red]s:[/bold red] [bold]stop round[/bold]\n"
+            "[bold red]b:[/bold red] [bold]skip break[/bold]\n"
+        )
+
     def reset_completed_rounds(self) -> None:
         self.completed_rounds = 0
 
@@ -111,8 +143,12 @@ class Pomodoro:
         )
 
         for pomodoro_session_count in range(self.pomodoro_sessions):
+            listener = keyboard.Listener(on_press=self.on_press)
+            listener.start()
+
             clear_screen()
             console.rule(f"[bold]Pomodoro Session {pomodoro_session_count + 1}")
+            self.display_round_help_keys()
 
             while self.completed_rounds < self.session_rounds:
                 if self.completed_rounds == 0:
