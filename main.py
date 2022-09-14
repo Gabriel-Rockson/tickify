@@ -145,10 +145,11 @@ def start_new_pomodoro_instance():
     clear_screen()
     console.rule("[bold]Pomodoro session information")
     print()
-    console.print("[bold underline blue]Necessary information")
+    console.print("[bold underline blue]Helpful information")
     console.print(
         "[bold magenta]Pomodoro Session[/bold magenta] - This consists of many rounds of focused work. "
-        "Eg. 1 pomodoro session can have 3 rounds of 15 minutes time."
+        "Eg. 2 pomodoro sessions can have 3 rounds of 15 minutes time. The pomodoro will run [bold blue]twice[/bold blue] "
+        "and for each, it will run [bold blue]three[/bold blue] 15 minutes blocks."
     )
     console.print(
         "[bold magenta]Rounds per Session[/bold magenta] - The total number of rounds to have in a session."
