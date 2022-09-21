@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from typing import List
 
 from rich.console import Console
 from rich.table import Table
@@ -18,80 +19,73 @@ Base.metadata.create_all(bind=engine)
 console = Console()
 
 
-session_time_options: list[dict[str, str]] = [
-    {"time": "15:00", "english": "15 minutes"},
-    {"time": "20:00", "english": "20 minutes"},
-    {"time": "25:00", "english": "25 minutes"},
-    {"time": "30:00", "english": "30 minutes"},
-    {"time": "35:00", "english": "35 minutes"},
-    {"time": "40:00", "english": "40 minutes"},
-    {"time": "45:00", "english": "45 minutes"},
-    {"time": "50:00", "english": "50 minutes"},
-    {"time": "55:00", "english": "55 minutes"},
-    {"time": "60:00", "english": "1 hour"},
+time_options = [
+    {
+        "round_time": ("15:00", "15 minutes"),
+        "short_break": ("3:00", "3 minutes"),
+        "long_break": ("10:00", "10 minutes"),
+    },
+    {
+        "round_time": ("15:00", "15 minutes"),
+        "short_break": ("5:00", "5 minutes"),
+        "long_break": ("10:00", "10 minutes"),
+    },
+    {
+        "round_time": ("25:00", "25 minutes"),
+        "short_break": ("5:00", "5 minutes"),
+        "long_break": ("10:00", "10 minutes"),
+    },
+    {
+        "round_time": ("30:00", "30 minutes"),
+        "short_break": ("5:00", "5 minutes"),
+        "long_break": ("10:00", "10 minutes"),
+    },
+    {
+        "round_time": ("30:00", "30 minutes"),
+        "short_break": ("10:00", "10 minutes"),
+        "long_break": ("15:00", "15 minutes"),
+    },
+    {
+        "round_time": ("45:00", "45 minutes"),
+        "short_break": ("10:00", "10 minutes"),
+        "long_break": ("15:00", "15 minutes"),
+    },
+    {
+        "round_time": ("45:00", "45 minutes"),
+        "short_break": ("10:00", "10 minutes"),
+        "long_break": ("20:00", "20 minutes"),
+    },
+    {
+        "round_time": ("60:00", "1 hour"),
+        "short_break": ("10:00", "10 minutes"),
+        "long_break": ("30:00", "30 minutes"),
+    },
 ]
 
-session_short_break_options: list[dict[str, str]] = [
-    {"time": "3:00", "english": "3 minutes"},
-    {"time": "5:00", "english": "5 minutes"},
-    {"time": "10:00", "english": "10 minutes"},
-    {"time": "15:00", "english": "15 minutes"},
-]
 
-session_long_break_options: list[dict[str, str]] = [
-    {"time": "5:00", "english": "5 minutes"},
-    {"time": "10:00", "english": "10 minutes"},
-    {"time": "15:00", "english": "15 minutes"},
-    {"time": "20:00", "english": "20 minutes"},
-    {"time": "25:00", "english": "25 minutes"},
-]
-
-
-def display_time_options(options: list[dict[str, str]], title: str) -> None:
+def display_time_options(options):
     """
-    Display the options for the program
+    Display the time options for a pomodoro session
     """
-    table = Table(title=title, title_style="bold green", width=60)
-
-    table.add_column("Option", style="bold blue")
-    table.add_column("Time", style="bold")
-    table.add_column("Readable Format", style="bold")
+    table = Table(
+        title="Time Options for Pomodoro Session",
+        title_style="bold green",
+        show_lines=True,
+    )
+    table.add_column("Option", style="bold yellow")
+    table.add_column("Round Time", style="bold green")
+    table.add_column("Short Break Time", style="bold")
+    table.add_column("Long Break Time", style="bold")
 
     for number, option in enumerate(options, start=1):
-        table.add_row(str(number), option["time"], option["english"])
+        table.add_row(
+            str(number),
+            option["round_time"][1],
+            option["short_break"][1],
+            option["long_break"][1],
+        )
 
     console.print(table)
-
-
-def get_session_time_minutes() -> int:
-    session_time_option = int(
-        console.input("[bold yellow]Choose your session time, eg, 3: ")
-    )
-
-    session_time = session_time_options[session_time_option - 1]
-    session_minutes = int(session_time["time"].split(":")[0])
-
-    return session_minutes
-
-
-def get_short_break_minutes() -> int:
-    short_break_option = int(
-        console.input("[bold yellow]Choose your short break time, eg, 2: ")
-    )
-    short_break_time = session_short_break_options[short_break_option - 1]
-    short_break_minutes = int(short_break_time["time"].split(":")[0])
-
-    return short_break_minutes
-
-
-def get_long_break_minutes() -> int:
-    long_break_option = int(
-        console.input("[bold yellow]Choose your long break time, eg, 2: ")
-    )
-    long_break_time = session_long_break_options[long_break_option - 1]
-    long_break_minutes = int(long_break_time["time"].split(":")[0])
-
-    return long_break_minutes
 
 
 def display_program_options():
@@ -128,52 +122,39 @@ def display_program_options():
 def start_new_pomodoro_instance():
     clear_screen()
 
-    # Session time options
-    display_time_options(session_time_options, "Time per round in a session.")
-    session_minutes = get_session_time_minutes()
-
-    # Short break session options
-    clear_screen()
-    display_time_options(session_short_break_options, "Short break time options.")
-    short_break_minutes = get_short_break_minutes()
-
-    # Long break session options
-    clear_screen()
-    display_time_options(session_long_break_options, "Long break time options.")
-    long_break_minutes = get_long_break_minutes()
-
     clear_screen()
     console.rule("[bold]Pomodoro session information")
-    print()
-    console.print("[bold underline blue]Helpful information")
-    console.print(
-        "[bold magenta]Pomodoro Session[/bold magenta] - This consists of many rounds of focused work. "
-        "Eg. 2 pomodoro sessions can have 3 rounds of 15 minutes time. The pomodoro will run [bold blue]twice[/bold blue] "
-        "and for each, it will run [bold blue]three[/bold blue] 15 minutes blocks."
-    )
-    console.print(
-        "[bold magenta]Rounds per Session[/bold magenta] - The total number of rounds to have in a session."
+
+    session_rounds = int(
+        console.input("[bold yellow]How many rounds per session? eg, 4: ")
     )
     print()
+
     pomodoros = int(
         console.input(
             "[bold yellow]How many pomodoro sessions do you want to run? eg, 2: "
         )
     )
     print()
-    session_rounds = int(
-        console.input("[bold yellow]How many rounds per session? eg, 4: ")
-    )
+    # Pomodoro options
+    display_time_options(time_options)
+    time_option = eval(console.input("[bold yellow]Your time choice: "))
 
+    round_time = int(time_options[time_option - 1]["round_time"][0].split(":")[0])
+    short_break = int(time_options[time_option - 1]["short_break"][0].split(":")[0])
+    long_break = int(time_options[time_option - 1]["long_break"][0].split(":")[0])
+
+    # Instantiate pomodoro
     pomodoro = Pomodoro(
         pomodoros=pomodoros,
         session_rounds=session_rounds,
-        session_minutes=session_minutes,
-        short_break_minutes=short_break_minutes,
-        long_break_minutes=long_break_minutes,
+        session_minutes=round_time,
+        short_break_minutes=short_break,
+        long_break_minutes=long_break,
     )
 
     clear_screen()
+
     pomodoro.start()
 
 
