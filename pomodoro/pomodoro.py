@@ -5,7 +5,11 @@ import click
 
 from playsound import playsound
 from rich.console import Console
-from rich.progress import Progress
+from rich.progress import (
+    Progress,
+    SpinnerColumn,
+    TimeElapsedColumn,
+)
 import typer
 
 from pomodoro import crud
@@ -69,7 +73,9 @@ class Pomodoro:
         pass
 
     def start_session(self) -> None:
-        with Progress() as progress:
+        with Progress(
+            SpinnerColumn(), TimeElapsedColumn(), *Progress.get_default_columns()
+        ) as progress:
             task1 = progress.add_task(
                 f"[bold yellow]Round {self.completed_rounds + 1} ...",
                 total=self.get_seconds(self.session_minutes),
@@ -86,7 +92,9 @@ class Pomodoro:
         console.print(f"[bold green]Round {self.completed_rounds} Completed.\n")
 
     def start_short_break(self) -> None:
-        with Progress() as progress:
+        with Progress(
+            SpinnerColumn(), TimeElapsedColumn(), *Progress.get_default_columns()
+        ) as progress:
             task1 = progress.add_task(
                 f"Short Break ...", total=self.get_seconds(self.short_break_minutes)
             )
@@ -99,7 +107,9 @@ class Pomodoro:
         console.print(f"[bold green]Short Break Over\n")
 
     def start_long_break(self) -> None:
-        with Progress() as progress:
+        with Progress(
+            SpinnerColumn(), TimeElapsedColumn(), *Progress.get_default_columns()
+        ) as progress:
             task1 = progress.add_task(
                 f"Long Break ...", total=self.get_seconds(self.long_break_minutes)
             )
