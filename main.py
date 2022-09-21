@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import List
 
+import click
 from rich.console import Console
 from rich.table import Table
 import typer
@@ -11,7 +12,6 @@ from db.config import engine
 from db.models import Base
 from pomodoro import crud
 from pomodoro.pomodoro import Pomodoro
-from pomodoro.utils import clear_screen
 
 Base.metadata.create_all(bind=engine)
 
@@ -89,17 +89,17 @@ def display_time_options(options):
 
 
 def display_program_options():
-    table = Table(title="Options", title_style="bold green")
+    table = Table(title="Program Options", title_style="bold green", show_lines=True)
 
-    table.add_column("Option Number", style="bold blue")
-    table.add_column("Option", style="magenta bold")
-    table.add_column("Description", style="bold italic")
+    table.add_column("Option", style="bold blue")
+    table.add_column("Title", style="bold")
+    table.add_column("Description")
 
     options: list[dict[str, str]] = [
         {
             "number": "1",
-            "option": "Show Today's Statistics",
-            "description": "View the statistics of all pomodoro sessions today",
+            "option": "Run Pomodoro",
+            "description": "Run a new pomodoro session",
         },
         {
             "number": "2",
@@ -108,8 +108,8 @@ def display_program_options():
         },
         {
             "number": "3",
-            "option": "Run Pomodoro",
-            "description": "Run a new pomodoro session",
+            "option": "Show Today's Statistics",
+            "description": "View the statistics of all pomodoro sessions today",
         },
     ]
 
@@ -120,9 +120,7 @@ def display_program_options():
 
 
 def start_new_pomodoro_instance():
-    clear_screen()
-
-    clear_screen()
+    click.clear()
     console.rule("[bold]Pomodoro session information")
 
     session_rounds = int(
@@ -138,7 +136,7 @@ def start_new_pomodoro_instance():
     print()
     # Pomodoro options
     display_time_options(time_options)
-    time_option = eval(console.input("[bold yellow]Your time choice: "))
+    time_option = eval(console.input("[bold yellow]Your time choice, eg, 3: "))
 
     round_time = int(time_options[time_option - 1]["round_time"][0].split(":")[0])
     short_break = int(time_options[time_option - 1]["short_break"][0].split(":")[0])
@@ -153,7 +151,7 @@ def start_new_pomodoro_instance():
         long_break_minutes=long_break,
     )
 
-    clear_screen()
+    click.clear()
 
     pomodoro.start()
 
@@ -184,7 +182,7 @@ def show_all_statistics():
             str(record.done),
         )
 
-    clear_screen()
+    click.clear()
     console.rule("[bold]Statistics")
     console.print(table)
 
@@ -230,7 +228,7 @@ def show_today_statistics():
     table.caption_style = "yellow"
     table.caption_justify = "right"
 
-    clear_screen()
+    click.clear()
     console.rule(
         f"[bold red]Statistics for: {datetime.today().date().strftime('%A %d %B %Y')}"
     )  # TODO: make the date human readable
@@ -239,18 +237,18 @@ def show_today_statistics():
 
 
 def main():
-    clear_screen()
+    click.clear()
 
     # Display program options
     display_program_options()
     option = eval(console.input("[bold yellow]Enter your choice, eg, 1: "))
 
     if option == 1:
-        show_today_statistics()
+        start_new_pomodoro_instance()
     elif option == 2:
         show_all_statistics()
     elif option == 3:
-        start_new_pomodoro_instance()
+        show_today_statistics()
 
 
 if __name__ == "__main__":

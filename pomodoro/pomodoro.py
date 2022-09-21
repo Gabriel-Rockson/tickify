@@ -4,13 +4,11 @@ import time
 import click
 
 from playsound import playsound
-from pynput import keyboard
 from rich.console import Console
-from rich.progress import Progress, track
+from rich.progress import Progress
 import typer
 
 from pomodoro import crud
-from pomodoro.utils import clear_screen
 
 console = Console()
 
@@ -65,7 +63,7 @@ class Pomodoro:
             if key.char == "p":
                 self.run_pomodoro = not self.run_pomodoro
         except AttributeError:
-            print(f"Special key {key} pressed")
+            pass
 
     def on_release(self, key):
         pass
@@ -88,21 +86,27 @@ class Pomodoro:
         console.print(f"[bold green]Round {self.completed_rounds} Completed.\n")
 
     def start_short_break(self) -> None:
-        for _ in track(
-            range(self.get_seconds(self.short_break_minutes)),
-            description=f"[bold]Short Break, Take Some Rest",
-        ):
-            time.sleep(1)
+        with Progress() as progress:
+            task1 = progress.add_task(
+                f"Short Break ...", total=self.get_seconds(self.short_break_minutes)
+            )
+
+            while not progress.finished:
+                progress.update(task1, advance=1)
+                time.sleep(1)
 
         self.show_alert("Short Break Over!! Get Back to Work.", urgency="critical")
         console.print(f"[bold green]Short Break Over\n")
 
     def start_long_break(self) -> None:
-        for _ in track(
-            range(self.get_seconds(self.long_break_minutes)),
-            description=f"[bold]Long Break, Enjoy",
-        ):
-            time.sleep(1)
+        with Progress() as progress:
+            task1 = progress.add_task(
+                f"Long Break ...", total=self.get_seconds(self.long_break_minutes)
+            )
+
+            while not progress.finished:
+                progress.update(task1, advance=1)
+                time.sleep(1)
 
         self.show_alert("Long Break Completed.")
         console.print(f"[bold green]Long Break Over.\n")
@@ -143,10 +147,10 @@ class Pomodoro:
         )
 
         for pomodoro_session_count in range(self.pomodoro_sessions):
-            listener = keyboard.Listener(on_press=self.on_press)
-            listener.start()
+            # listener = keyboard.Listener(on_press=self.on_press)
+            # listener.start()
 
-            clear_screen()
+            click.clear()
             console.rule(f"[bold]Pomodoro Session {pomodoro_session_count + 1}")
             self.display_round_help_keys()
 
