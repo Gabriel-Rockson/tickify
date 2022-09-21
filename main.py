@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from time import sleep, time
 from typing import List
 
 import click
 from rich.console import Console
+from rich.progress import (
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    TimeElapsedColumn,
+    TimeRemainingColumn,
+)
 from rich.table import Table
 import typer
 
@@ -138,9 +146,13 @@ def start_new_pomodoro_instance():
     display_time_options(time_options)
     time_option = eval(console.input("[bold yellow]Your time choice, eg, 3: "))
 
-    round_time = int(time_options[time_option - 1]["round_time"][0].split(":")[0])
-    short_break = int(time_options[time_option - 1]["short_break"][0].split(":")[0])
-    long_break = int(time_options[time_option - 1]["long_break"][0].split(":")[0])
+    round_time_option = time_options[time_option - 1]["round_time"][0].split(":")
+    short_break_option = time_options[time_option - 1]["short_break"][0].split(":")
+    long_break_option = time_options[time_option - 1]["long_break"][0].split(":")
+
+    round_time = int(round_time_option[0])
+    short_break = int(short_break_option[0])
+    long_break = int(long_break_option[0])
 
     # Instantiate pomodoro
     pomodoro = Pomodoro(
@@ -150,6 +162,20 @@ def start_new_pomodoro_instance():
         short_break_minutes=short_break,
         long_break_minutes=long_break,
     )
+
+    print()
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        TimeRemainingColumn(),
+    ) as progress:
+        task = progress.add_task(
+            "[bold red]Starting new pomodoro session in ...", total=5
+        )
+
+        while not progress.finished:
+            sleep(1)
+            progress.update(task, advance=1)
 
     click.clear()
 
