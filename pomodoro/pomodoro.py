@@ -161,8 +161,10 @@ class Pomodoro:
             # listener.start()
 
             click.clear()
-            console.rule(f"[bold]Pomodoro Session {pomodoro_session_count + 1}")
-            self.display_round_help_keys()
+            console.rule(
+                f"[bold green]Pomodoro Session {pomodoro_session_count + 1} out of {self.pomodoro_sessions}"
+            )
+            # self.display_round_help_keys()
 
             while self.completed_rounds < self.session_rounds:
                 if self.completed_rounds == 0:
