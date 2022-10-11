@@ -1,26 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# __main__.py
+
 from datetime import datetime
 from time import sleep
 
-
 import click
 from rich.console import Console
-from rich.progress import (
-    Progress,
-    SpinnerColumn,
-    TextColumn,
-    TimeRemainingColumn,
-)
+from rich.progress import Progress, SpinnerColumn, TextColumn, TimeRemainingColumn
 from rich.table import Table
 import typer
 
-from db.config import engine
-from db.models import Base
-from pomodoro import crud
-from pomodoro.pomodoro import Pomodoro
+from tickify.db import config, models
+from tickify.pomodoro import crud
+from tickify.pomodoro.pomodoro import Pomodoro
 
-Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=config.engine)
 
 # Instantiate console
 console = Console()
