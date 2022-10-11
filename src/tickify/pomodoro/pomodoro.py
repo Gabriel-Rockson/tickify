@@ -8,7 +8,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 import typer
 
-from pomodoro import crud
+from tickify.pomodoro import crud
 
 console = Console()
 

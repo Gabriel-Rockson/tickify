@@ -1,8 +1,9 @@
 from datetime import date
+
 from sqlalchemy.sql import func
 
-from db.config import SessionLocal
-from db.models import Pomodoro
+from tickify.db.config import SessionLocal
+from tickify.db.models import Pomodoro
 
 
 def add_new_record(
