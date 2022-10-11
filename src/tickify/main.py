@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from time import sleep, time
-from typing import List
+from time import sleep
+
 
 import click
 from rich.console import Console
@@ -10,7 +10,6 @@ from rich.progress import (
     Progress,
     SpinnerColumn,
     TextColumn,
-    TimeElapsedColumn,
     TimeRemainingColumn,
 )
 from rich.table import Table

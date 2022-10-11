@@ -1,25 +1,23 @@
+from pathlib import Path
 import subprocess
 import time
 
 import click
-
 from playsound import playsound
 from rich.console import Console
-from rich.progress import (
-    Progress,
-    SpinnerColumn,
-    TimeElapsedColumn,
-)
+from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 import typer
 
 from pomodoro import crud
 
 console = Console()
 
-sound_files: dict[str, str] = {
-    "work": "./sounds/work-sound.mp3",
-    "short-break": "./sounds/short-break-sound.mp3",
-    "long-break": "./sounds/long-break-sound.mp3",
+SOUNDS_DIR = Path(__file__).parent / "sounds"
+
+sound_files = {
+    "work": SOUNDS_DIR / "work-sound.mp3",
+    "short-break": SOUNDS_DIR / "short-break-sound.mp3",
+    "long-break": SOUNDS_DIR / "long-break-sound.mp3",
 }
 
 
