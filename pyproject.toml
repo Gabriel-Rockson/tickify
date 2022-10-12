@@ -1,0 +1,51 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=65.4.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tickify"
+version = "1.0.0"
+description = "A terminal based pomodoro application"
+readme = "README.md"
+authors = [{ name = "Gabriel Rockson", email = "thegabrielrockson@gmail.com" }]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+]
+keywords = ["pomodoro", "productivity"]
+dependencies = [
+  "typer",
+  "playsound",
+  "pygobject",
+  "sqlalchemy",
+  "typing-extensions",
+  "pynput"
+]
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = []
+
+[project.urls]
+Github = "https://github.com/rocksongabriel/tickify"
+
+[project.scripts]
+tickify = "tickify.__main__:main"
+
+[tool.bumpver]
+current_version = "1.0.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"', 'version ="{version}"',
+]
+"src/tickify/__init__.py" = ["{version}"]
+
