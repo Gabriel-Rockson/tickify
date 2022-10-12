@@ -38,14 +38,11 @@ tickify = "tickify.__main__:main"
 [tool.bumpver]
 current_version = "1.0.0"
 version_pattern = "MAJOR.MINOR.PATCH"
-commit_message = "bump version {old_version} -> {new_version}"
-commit = true
-tag = true
-push = true
+commit_message  = "Bump version {old_version} -> {new_version}"
+commit          = true
+tag             = true
+push            = false
 
 [tool.bumpver.file_patterns]
-"pyproject.toml" = [
-    'current_version = "{version}"', 'version ="{version}"',
-]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
 "src/tickify/__init__.py" = ["{version}"]
-
