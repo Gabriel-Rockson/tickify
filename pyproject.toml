@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tickify"
-version = "1.0.0"
+version = "1.1.0"
 description = "A terminal based pomodoro application"
 readme = "README.md"
 authors = [{ name = "Gabriel Rockson", email = "thegabrielrockson@gmail.com" }]
@@ -36,7 +36,7 @@ Github = "https://github.com/rocksongabriel/tickify"
 tickify = "tickify.__main__:main"
 
 [tool.bumpver]
-current_version = "1.0.0"
+current_version = "1.1.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = true
