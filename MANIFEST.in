@@ -1,0 +1,3 @@
+# MANIFEST.in
+
+include src/tickify/pomodoro/sounds/*.mp3
